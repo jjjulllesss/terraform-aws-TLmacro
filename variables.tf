@@ -35,10 +35,5 @@ variable "root_storage" {
 
 variable "user_names" {
   description = "Name and number of instances to create"
-  default     = []
-}
-
-variable "private_ip" {
-  description = "Name and number of instances to create"
-  default     = []
+  default     = ["TitanLive"]
 }

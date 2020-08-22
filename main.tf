@@ -36,12 +36,11 @@ data "aws_vpc" "example" {
 #########################RESSOURCES###################################
 
 resource "aws_instance" "instance" {
-  count = length(var.user_names)
-  ami = data.aws_ami.ubuntu.id
-  instance_type = var.instance_type
-  availability_zone = var.aws_az
+  count                  = length(var.user_names)
+  ami                    = data.aws_ami.ubuntu.id
+  instance_type          = var.instance_type
+  availability_zone      = var.aws_az
   vpc_security_group_ids = [aws_security_group.security_group_instance.id]
-  private_ip = var.private_ip[count.index]
 
   #IAM role attach to the instance
   iam_instance_profile = "SSMtestJules"
@@ -56,7 +55,7 @@ resource "aws_instance" "instance" {
   }
 
   tags = {
-    Name = var.user_names[count.index]
+    Name    = var.user_names[count.index]
     Project = var.project_name
   }
 }
@@ -66,13 +65,13 @@ resource "aws_eip" "elasticip" {
   count = length(var.user_names)
   vpc   = true
   tags = {
-    Name = var.user_names[count.index]
+    Name    = var.user_names[count.index]
     Project = var.project_name
   }
 }
 
 resource "aws_eip_association" "eip_assoc" {
-  count = length(var.user_names)
+  count         = length(var.user_names)
   instance_id   = aws_instance.instance[count.index].id
   allocation_id = aws_eip.elasticip[count.index].id
 }
@@ -116,7 +115,7 @@ resource "aws_security_group" "security_group_instance" {
   }
 
   tags = {
-    Name = var.sg_name
+    Name    = var.sg_name
     Project = var.project_name
   }
 }
