@@ -5,7 +5,7 @@ variable "aws_region" {
 
 variable "aws_az" {
   description = "AWS availability zone to launch servers."
-  default     = "us-east-1a"
+  default     = ""
 }
 
 variable "vpc" {
@@ -15,17 +15,17 @@ variable "vpc" {
 
 variable "instance_type" {
   description = "Type of instance used (API name)"
-  default     = "c5.2xlarge"
+  default     = "c5.4xlarge"
 }
 
 variable "sg_name" {
   description = "Name of the security group"
-  default     = "sg_BBCPOClive"
+  default     = "sg_live"
 }
 
 variable "project_name" {
   description = "Name of the project fro tags"
-  default     = "BBCPOC"
+  default     = "TitanLive"
 }
 
 variable "root_storage" {
@@ -35,10 +35,10 @@ variable "root_storage" {
 
 variable "user_names" {
   description = "Name and number of instances to create"
-  default     = ["Titan_live1"] #, "Titan_live2", "Titan_live3"]
+  default     = []
 }
 
 variable "private_ip" {
   description = "Name and number of instances to create"
-  default     = ["172.31.0.11"] #, "172.31.0.12", "172.31.0.13"]
+  default     = []
 }
