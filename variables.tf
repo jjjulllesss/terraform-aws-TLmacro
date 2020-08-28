@@ -8,7 +8,7 @@ variable "aws_az" {
   default     = ""
 }
 
-variable "vpc" {
+variable "vpc_name" {
   description = "Name of the existing VPC which will be used"
   default     = "Default VPC"
 }
@@ -24,7 +24,7 @@ variable "sg_name" {
 }
 
 variable "project_name" {
-  description = "Name of the project fro tags"
+  description = "Name of the project for tags"
   default     = "TitanLive"
 }
 
@@ -34,6 +34,31 @@ variable "root_storage" {
 }
 
 variable "user_names" {
-  description = "Name and number of instances to create"
+  description = "Name and number of instances to create (if you specify multiple names)"
   default     = ["TitanLive"]
+}
+
+variable "TL_majorVersion" {
+  description = "First digit of Titan Live version"
+  default     = 4
+}
+
+variable "TL_minorVersion" {
+  description = "Second digit of Titan Live version"
+  default     = 1
+}
+
+variable "TL_GAVersion" {
+  description = "Third digit of Titan Live version"
+  default     = 22
+}
+
+variable "TL_fixVersion" {
+  description = "Fourth digit of Titan Live version"
+  default     = 0
+}
+
+variable "streamport" {
+  description = "Port used for input stream"
+  default     = 1234
 }

@@ -1,13 +1,9 @@
-provider "aws" {
-  region = var.aws_region
-}
-
 ##########################DATA##################################
 
 #Get the VPC ID
 data "aws_vpc" "selected" {
   tags = {
-    Name = "${var.vpc}"
+    Name = "${var.vpc_name}"
   }
 }
 
@@ -33,7 +29,25 @@ data "aws_vpc" "example" {
   id = data.aws_vpc.selected.id
 }
 
+#Modify the startup script
+data "template_file" "init" {
+  template = "${file("${path.module}/install_live.sh")}"
+
+  vars = {
+    TL_majorVersion = var.TL_majorVersion
+    TL_minorVersion = var.TL_minorVersion
+    TL_GAVersion = var.TL_GAVersion
+    TL_fixVersion = var.TL_fixVersion
+  }
+}
+
 #########################RESSOURCES###################################
+
+#add random letters to create unique ressources
+resource "random_string" "random" {
+  length = 4
+}
+
 
 resource "aws_instance" "instance" {
   count                  = length(var.user_names)
@@ -43,10 +57,10 @@ resource "aws_instance" "instance" {
   vpc_security_group_ids = [aws_security_group.security_group_instance.id]
 
   #IAM role attach to the instance
-  iam_instance_profile = "SSMtestJules"
+  iam_instance_profile = "SSMinstanceaccess"
 
   #Script to install the Titan Live macro-docker
-  user_data = file("install_live.sh")
+  user_data = data.template_file.init.rendered
 
   #Primary storage of the instance
   root_block_device {
@@ -55,7 +69,7 @@ resource "aws_instance" "instance" {
   }
 
   tags = {
-    Name    = var.user_names[count.index]
+    Name    = "${var.user_names[count.index]}-${random_string.random.result}"
     Project = var.project_name
   }
 }
@@ -65,7 +79,7 @@ resource "aws_eip" "elasticip" {
   count = length(var.user_names)
   vpc   = true
   tags = {
-    Name    = var.user_names[count.index]
+    Name    = "${var.user_names[count.index]}-${random_string.random.result}"
     Project = var.project_name
   }
 }
@@ -79,7 +93,7 @@ resource "aws_eip_association" "eip_assoc" {
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 resource "aws_security_group" "security_group_instance" {
-  name        = var.sg_name
+  name        = "${var.sg_name}-${random_string.random.result}"
   description = "Allow http, ping inbound traffic. All in outbound"
   vpc_id      = data.aws_vpc.selected.id
 
@@ -101,10 +115,10 @@ resource "aws_security_group" "security_group_instance" {
   }
 
   ingress {
-    from_port   = 1234
-    to_port     = 1234
+    from_port   = var.streamport
+    to_port     = var.streamport
     protocol    = "udp"
-    cidr_blocks = ["172.31.0.0/16"]
+    cidr_blocks = [data.aws_vpc.example.cidr_block]
   }
 
   egress {
@@ -115,7 +129,7 @@ resource "aws_security_group" "security_group_instance" {
   }
 
   tags = {
-    Name    = var.sg_name
+    Name    = "${var.sg_name}-${random_string.random.result}"
     Project = var.project_name
   }
 }
