@@ -5,12 +5,12 @@ variable "aws_az" {
 
 variable "vpc_name" {
   description = "Name of the existing VPC which will be used"
-  default     = "Default VPC"
+  default     = ""
 }
 
 variable "instance_type" {
   description = "Type of instance used (API name)"
-  default     = "c5.4xlarge"
+  default     = "c5a.4xlarge"
 }
 
 variable "sg_name" {

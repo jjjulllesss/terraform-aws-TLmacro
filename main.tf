@@ -45,7 +45,8 @@ data "template_file" "init" {
 
 #add random letters to create unique ressources
 resource "random_string" "random" {
-  length = 4
+  length = 5
+  special = false
 }
 
 
@@ -57,7 +58,7 @@ resource "aws_instance" "instance" {
   vpc_security_group_ids = [aws_security_group.security_group_instance.id]
 
   #IAM role attach to the instance
-  iam_instance_profile = "SSMinstanceaccess"
+  iam_instance_profile = aws_iam_instance_profile.ssm_profile.name
 
   #Script to install the Titan Live macro-docker
   user_data = data.template_file.init.rendered
@@ -132,4 +133,87 @@ resource "aws_security_group" "security_group_instance" {
     Name    = "${var.sg_name}-${random_string.random.result}"
     Project = var.project_name
   }
+}
+
+#########################IAM###################################
+
+resource "aws_iam_role" "ssm_role" {
+  name = "ssm_role-${random_string.random.result}"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_instance_profile" "ssm_profile" {
+  name = "ssm_profile-${random_string.random.result}"
+  role = aws_iam_role.ssm_role.name
+}
+
+resource "aws_iam_role_policy" "ssm_policy" {
+  name = "ssm_policy-${random_string.random.result}"
+  role = aws_iam_role.ssm_role.id
+
+  policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ssm:DescribeAssociation",
+                "ssm:GetDeployablePatchSnapshotForInstance",
+                "ssm:GetDocument",
+                "ssm:DescribeDocument",
+                "ssm:GetManifest",
+                "ssm:GetParameter",
+                "ssm:GetParameters",
+                "ssm:ListAssociations",
+                "ssm:ListInstanceAssociations",
+                "ssm:PutInventory",
+                "ssm:PutComplianceItems",
+                "ssm:PutConfigurePackageResult",
+                "ssm:UpdateAssociationStatus",
+                "ssm:UpdateInstanceAssociationStatus",
+                "ssm:UpdateInstanceInformation"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ssmmessages:CreateControlChannel",
+                "ssmmessages:CreateDataChannel",
+                "ssmmessages:OpenControlChannel",
+                "ssmmessages:OpenDataChannel"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ec2messages:AcknowledgeMessage",
+                "ec2messages:DeleteMessage",
+                "ec2messages:FailMessage",
+                "ec2messages:GetEndpoint",
+                "ec2messages:GetMessages",
+                "ec2messages:SendReply"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+EOF
 }

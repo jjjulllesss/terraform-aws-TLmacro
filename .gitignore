@@ -3,3 +3,9 @@
 .terraform/plugins/linux_amd64/terraform-provider-aws_v3.3.0_x5
 terraform.tfstate
 terraform.tfstate.backup
+maintest.tf
+maintest.tf
+.terraform/plugins/linux_amd64/terraform-provider-template_v2.1.2_x4
+.terraform/plugins/linux_amd64/terraform-provider-random_v2.3.0_x4
+.terraform/modules/modules.json
+MISC/main.tf
