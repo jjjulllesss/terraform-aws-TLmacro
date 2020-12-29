@@ -57,6 +57,9 @@ resource "aws_instance" "instance" {
   availability_zone      = var.aws_az
   vpc_security_group_ids = [aws_security_group.security_group_instance.id]
 
+  #SSH key name
+  key_name= var.key_name
+
   #IAM role attach to the instance
   iam_instance_profile = aws_iam_instance_profile.ssm_profile.name
 
@@ -71,6 +74,13 @@ resource "aws_instance" "instance" {
 
   tags = {
     Name    = "${var.user_names[count.index]}-${random_string.random.result}"
+    Project = var.project_name
+    Officehours = var.officehours
+  }
+  
+  volume_tags = {
+    Name    = "${var.user_names[count.index]}-${random_string.random.result}"
+    Officehours = var.officehours
     Project = var.project_name
   }
 }
@@ -100,6 +110,15 @@ resource "aws_security_group" "security_group_instance" {
 
   #Port for HTTP access  
   ingress {
+    description = "SSH"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  #Port for HTTP access  
+  ingress {
     description = "HTTP"
     from_port   = 80
     to_port     = 80
@@ -116,8 +135,8 @@ resource "aws_security_group" "security_group_instance" {
   }
 
   ingress {
-    from_port   = var.streamport
-    to_port     = var.streamport
+    from_port   = var.streamportmax
+    to_port     = var.streamportmin
     protocol    = "udp"
     cidr_blocks = [data.aws_vpc.example.cidr_block]
   }

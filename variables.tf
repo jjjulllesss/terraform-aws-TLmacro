@@ -53,7 +53,22 @@ variable "TL_fixVersion" {
   default     = 0
 }
 
-variable "streamport" {
-  description = "Port used for input stream"
+variable "streamportmax" {
+  description = "Max port in range used for input stream"
   default     = 1234
+}
+
+variable "streamportmin" {
+  description = "Min port in range used for input stream"
+  default     = 1234
+}
+
+variable "officehours" {
+  description = "Tag for the instance scheduler"
+  default     = "ParisOfficehours"
+}
+
+variable "key_name" {
+  description = "Name of the SSH key pair"
+  default     = ""
 }
