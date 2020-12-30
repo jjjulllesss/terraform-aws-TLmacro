@@ -9,7 +9,6 @@ sudo apt -y install docker.io
 sudo systemctl start docker
 sudo systemctl enable docker
 
-# Install ATEME live
 wget $url_live$live
 sudo docker load -i $live
 sudo docker run --restart always --privileged --network host --name=titanlive -v /sys/fs/cgroup:/sys/fs/cgroup -d --shm-size=2g -ti titanlive-${TL_majorVersion}_${TL_minorVersion}_${TL_GAVersion}_${TL_fixVersion}-0-x64-linux

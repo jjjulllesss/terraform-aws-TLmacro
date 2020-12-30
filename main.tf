@@ -3,7 +3,7 @@
 #Get the VPC ID
 data "aws_vpc" "selected" {
   tags = {
-    Name = "${var.vpc_name}"
+    Name = var.vpc_name
   }
 }
 
