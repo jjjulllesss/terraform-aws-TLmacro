@@ -13,14 +13,17 @@ variable "instance_type" {
   default     = "c5a.4xlarge"
 }
 
-variable "sg_name" {
-  description = "Name of the security group"
-  default     = "sg_live"
-}
-
-variable "project_name" {
-  description = "Name of the project for tags"
-  default     = "TitanLive"
+variable "tags" {
+  type = object({
+    owner        = string
+    project_name = string
+    officehours  = string
+  })
+  default = {
+      owner        = "myAWSname"
+      project_name = "TitanLive"
+      officehours  = "ParisOfficehours"
+    }
 }
 
 variable "root_storage" {
@@ -28,47 +31,48 @@ variable "root_storage" {
   default     = 30
 }
 
-variable "user_names" {
+variable "instance_names" {
   description = "Name and number of instances to create (if you specify multiple names)"
   default     = ["TitanLive"]
 }
 
-variable "TL_majorVersion" {
-  description = "First digit of Titan Live version"
-  default     = 4
+variable "TL_Version" {
+  type = object({
+    major = number
+    minor = number
+    GA    = number
+    fix   = number
+  })
+  default = {
+      major = 4
+      minor = 1
+      GA    = 22
+      fix   = 0
+    }
 }
 
-variable "TL_minorVersion" {
-  description = "Second digit of Titan Live version"
-  default     = 1
-}
-
-variable "TL_GAVersion" {
-  description = "Third digit of Titan Live version"
-  default     = 22
-}
-
-variable "TL_fixVersion" {
-  description = "Fourth digit of Titan Live version"
-  default     = 0
-}
-
-variable "streamportmax" {
-  description = "Max port in range used for input stream"
-  default     = 1234
-}
-
-variable "streamportmin" {
-  description = "Min port in range used for input stream"
-  default     = 1234
-}
-
-variable "officehours" {
-  description = "Tag for the instance scheduler"
-  default     = "ParisOfficehours"
+variable "streamport" {
+  type = object({
+    max = number
+    min = number
+  })
+  default ={
+      max = 1234
+      min = 1234
+    }
 }
 
 variable "key_name" {
   description = "Name of the SSH key pair"
   default     = ""
+}
+
+variable "harbor_credentials_username" {
+  description = "username of the Harbor hub"
+  #sensitive = true //only in terraform 14
+}
+
+variable "harbor_credentials_password" {
+  description = "username of the Harbor hub"
+  #sensitive = true //only in terraform 14
 }

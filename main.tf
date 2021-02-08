@@ -34,10 +34,12 @@ data "template_file" "init" {
   template = "${file("${path.module}/install_live.sh")}"
 
   vars = {
-    TL_majorVersion = var.TL_majorVersion
-    TL_minorVersion = var.TL_minorVersion
-    TL_GAVersion = var.TL_GAVersion
-    TL_fixVersion = var.TL_fixVersion
+    TL_majorVersion = var.TL_Version.major
+    TL_minorVersion = var.TL_Version.minor
+    TL_GAVersion    = var.TL_Version.GA
+    TL_fixVersion   = var.TL_Version.fix
+    harbor_username = var.harbor_credentials_username
+    harbor_password = var.harbor_credentials_password
   }
 }
 
@@ -45,20 +47,20 @@ data "template_file" "init" {
 
 #add random letters to create unique ressources
 resource "random_string" "random" {
-  length = 5
+  length  = 5
   special = false
 }
 
 
 resource "aws_instance" "instance" {
-  count                  = length(var.user_names)
+  count                  = length(var.instance_names)
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = var.instance_type
   availability_zone      = var.aws_az
   vpc_security_group_ids = [aws_security_group.security_group_instance.id]
 
   #SSH key name
-  key_name= var.key_name
+  key_name = var.key_name
 
   #IAM role attach to the instance
   iam_instance_profile = aws_iam_instance_profile.ssm_profile.name
@@ -73,30 +75,36 @@ resource "aws_instance" "instance" {
   }
 
   tags = {
-    Name    = "${var.user_names[count.index]}-${random_string.random.result}"
-    Project = var.project_name
-    Officehours = var.officehours
+    Name        = "${var.instance_names[count.index]}-${random_string.random.result}"
+    Project     = var.tags.project_name
+    Officehours = var.tags.officehours
+    Owner       = var.tags.owner
+    Created_by  = "Terraform"
   }
-  
+
   volume_tags = {
-    Name    = "${var.user_names[count.index]}-${random_string.random.result}"
-    Officehours = var.officehours
-    Project = var.project_name
+    Name        = "${var.instance_names[count.index]}-${random_string.random.result}"
+    Officehours = var.tags.officehours
+    Project     = var.tags.project_name
+    Owner       = var.tags.owner
+    Created_by  = "Terraform"
   }
 }
 
 # # # # # # # # # # # # # # Elastic IP # # # # # # # # # # # # # # #
 resource "aws_eip" "elasticip" {
-  count = length(var.user_names)
+  count = length(var.instance_names)
   vpc   = true
   tags = {
-    Name    = "${var.user_names[count.index]}-${random_string.random.result}"
-    Project = var.project_name
+    Name       = "${var.instance_names[count.index]}-${random_string.random.result}"
+    Project    = var.tags.project_name
+    Owner      = var.tags.owner
+    Created_by = "Terraform"
   }
 }
 
 resource "aws_eip_association" "eip_assoc" {
-  count         = length(var.user_names)
+  count         = length(var.instance_names)
   instance_id   = aws_instance.instance[count.index].id
   allocation_id = aws_eip.elasticip[count.index].id
 }
@@ -104,7 +112,7 @@ resource "aws_eip_association" "eip_assoc" {
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 resource "aws_security_group" "security_group_instance" {
-  name        = "${var.sg_name}-${random_string.random.result}"
+  name        = "sg_live-${random_string.random.result}"
   description = "Allow http, ping inbound traffic. All in outbound"
   vpc_id      = data.aws_vpc.selected.id
 
@@ -135,8 +143,8 @@ resource "aws_security_group" "security_group_instance" {
   }
 
   ingress {
-    from_port   = var.streamportmax
-    to_port     = var.streamportmin
+    from_port   = var.streamport.max
+    to_port     = var.streamport.min
     protocol    = "udp"
     cidr_blocks = [data.aws_vpc.example.cidr_block]
   }
@@ -149,8 +157,10 @@ resource "aws_security_group" "security_group_instance" {
   }
 
   tags = {
-    Name    = "${var.sg_name}-${random_string.random.result}"
-    Project = var.project_name
+    Name       = "sg_live-${var.tags.project_name}-${random_string.random.result}"
+    Project    = var.tags.project_name
+    Owner      = var.tags.owner
+    Created_by = "Terraform"
   }
 }
 
