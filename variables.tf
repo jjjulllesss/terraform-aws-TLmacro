@@ -20,10 +20,10 @@ variable "tags" {
     officehours  = string
   })
   default = {
-      owner        = "myAWSname"
-      project_name = "TitanLive"
-      officehours  = "ParisOfficehours"
-    }
+    owner        = "myAWSname"
+    project_name = "TitanLive"
+    officehours  = "ParisOfficehours"
+  }
 }
 
 variable "root_storage" {
@@ -44,11 +44,11 @@ variable "TL_Version" {
     fix   = number
   })
   default = {
-      major = 4
-      minor = 1
-      GA    = 22
-      fix   = 0
-    }
+    major = 4
+    minor = 1
+    GA    = 22
+    fix   = 0
+  }
 }
 
 variable "streamport" {
@@ -56,10 +56,10 @@ variable "streamport" {
     max = number
     min = number
   })
-  default ={
-      max = 1234
-      min = 1234
-    }
+  default = {
+    max = 1234
+    min = 1234
+  }
 }
 
 variable "key_name" {

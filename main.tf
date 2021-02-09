@@ -89,6 +89,11 @@ resource "aws_instance" "instance" {
     Owner       = var.tags.owner
     Created_by  = "Terraform"
   }
+
+  lifecycle {
+    ignore_changes = ["ami"]
+  }
+
 }
 
 # # # # # # # # # # # # # # Elastic IP # # # # # # # # # # # # # # #
@@ -116,7 +121,7 @@ resource "aws_security_group" "security_group_instance" {
   description = "Allow http, ping inbound traffic. All in outbound"
   vpc_id      = data.aws_vpc.selected.id
 
-  #Port for HTTP access  
+  #Port for SSH access  
   ingress {
     description = "SSH"
     from_port   = 22
